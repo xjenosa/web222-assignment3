@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register Product – Jennifer Osa</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ===== Header / Navigation ===== -->
+  <header>
+    <div class="logo">Tech<span>Vault</span></div>
+    <nav aria-label="Main navigation">
+      <ul>
+        <li><a href="index.html">Products</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="product_register.html" class="active">Register Product</a></li>
+        <li><a href="honesty.html">Honesty</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- ===== Hero ===== -->
+  <section class="hero">
+    <h1>Supplier Product Registration</h1>
+    <p>Complete the form below to register a new product with TechVault.</p>
+  </section>
+
+  <!-- ===== Main Content ===== -->
+  <main>
+    <h2 class="section-title">Product Registration Form</h2>
+
+    <div class="form-layout">
+
+      <!-- ===== Form ===== -->
+      <div class="form-container">
+        <h2>Product Details</h2>
+
+        <form name="signup" id="registrationForm" method="POST" action="https://httpbin.org/post" novalidate>
+
+          <!-- Hidden Fields: update FullName and studentId with actual student values before submission -->
+          <input type="hidden" name="FullName" value="Jennifer Osa" />
+          <input type="hidden" name="studentId" value="123456789" />
+
+          <!-- Product ID -->
+          <div class="form-group">
+            <label for="productId">Product ID <span style="color:#e94560">*</span></label>
+            <input
+              type="text"
+              id="productId"
+              name="productId"
+              placeholder="Enter 8-digit product ID"
+              inputmode="numeric"
+            />
+          </div>
+
+          <!-- Product Description -->
+          <div class="form-group">
+            <label for="productDescription">Product Description <span style="color:#e94560">*</span></label>
+            <textarea
+              id="productDescription"
+              name="productDescription"
+              placeholder="Enter a description (minimum 20 characters)"
+            ></textarea>
+          </div>
+
+          <!-- Price -->
+          <div class="form-group">
+            <label for="price">Price ($) <span style="color:#e94560">*</span></label>
+            <input
+              type="text"
+              id="price"
+              name="price"
+              placeholder="Enter price (1–999, whole numbers only)"
+              inputmode="numeric"
+            />
+          </div>
+
+          <!-- Supplier Username -->
+          <div class="form-group">
+            <label for="supplierUsername">Supplier Username <span style="color:#e94560">*</span></label>
+            <input
+              type="text"
+              id="supplierUsername"
+              name="supplierUsername"
+              placeholder="Must start with a letter, min. 4 characters"
+            />
+          </div>
+
+          <!-- Supplier Status -->
+          <div class="form-group">
+            <label>Supplier Status <span style="color:#e94560">*</span></label>
+            <div class="checkbox-group" id="supplierStatusGroup">
+              <label>
+                <input type="checkbox" name="supplierStatus" value="new" />
+                New Supplier
+              </label>
+              <label>
+                <input type="checkbox" name="supplierStatus" value="contract" />
+                Contract Signed
+              </label>
+              <label>
+                <input type="checkbox" name="supplierStatus" value="quality" />
+                Quality Tested
+              </label>
+            </div>
+          </div>
+
+          <!-- Supplier Email -->
+          <div class="form-group">
+            <label for="supplierEmail">Supplier Email <span style="color:#e94560">*</span></label>
+            <input
+              type="email"
+              id="supplierEmail"
+              name="supplierEmail"
+              placeholder="supplier@example.com"
+            />
+          </div>
+
+          <!-- Buttons -->
+          <div class="form-actions">
+            <button type="submit" class="btn-submit">Submit</button>
+            <button type="reset" class="btn-reset" id="resetBtn">Reset</button>
+          </div>
+
+        </form>
+      </div><!-- /.form-container -->
+
+      <!-- ===== Error Panel ===== -->
+      <aside class="error-panel" id="errorPanel" aria-live="polite">
+        <h3>⚠ Please fix the following errors:</h3>
+        <ul class="error-list" id="errorList">
+          <!-- Errors injected by JavaScript -->
+        </ul>
+      </aside>
+
+    </div><!-- /.form-layout -->
+  </main>
+
+  <!-- ===== Footer ===== -->
+  <footer>
+    <p>&copy; 2025 TechVault &mdash; Jennifer Osa &mdash; WEB222 Assignment 3</p>
+    <p><a href="honesty.html">Academic Honesty</a> | <a href="index.html">Products</a></p>
+  </footer>
+
+  <!-- ===== JavaScript Validation ===== -->
+  <script>
+    (function () {
+      'use strict';
+
+      var form = document.forms['signup'];
+      var errorPanel = document.getElementById('errorPanel');
+      var errorList  = document.getElementById('errorList');
+
+      /**
+       * Remove field-error highlight from all inputs / textarea / checkboxes.
+       */
+      function clearFieldErrors() {
+        var fields = form.querySelectorAll('input, textarea');
+        fields.forEach(function (f) { f.classList.remove('field-error'); });
+
+        var checkboxes = form.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(function (cb) { cb.classList.remove('field-error'); });
+      }
+
+      /**
+       * Hide the error panel and clear all messages.
+       */
+      function clearErrors() {
+        errorList.innerHTML = '';
+        errorPanel.classList.remove('visible');
+        clearFieldErrors();
+      }
+
+      /**
+       * Add an error message to the panel and mark the field.
+       * @param {string} message  - Human-readable error text.
+       * @param {HTMLElement|null} fieldEl - The form field to highlight (optional).
+       */
+      function addError(message, fieldEl) {
+        var li = document.createElement('li');
+        li.textContent = message;
+        errorList.appendChild(li);
+
+        if (fieldEl) {
+          fieldEl.classList.add('field-error');
+        }
+      }
+
+      /**
+       * Validate the entire form and return true only if all fields are valid.
+       * @returns {boolean}
+       */
+      function validateForm() {
+        clearErrors();
+
+        var errors = false;
+
+        /* ---- 1. Product ID ---- */
+        var productIdEl = document.getElementById('productId');
+        var productId   = productIdEl.value.trim();
+        if (productId === '') {
+          addError('Product ID is required.', productIdEl);
+          errors = true;
+        } else if (!/^\d+$/.test(productId)) {
+          addError('Product ID must contain digits only.', productIdEl);
+          errors = true;
+        } else if (productId.length !== 8) {
+          addError('Product ID must be exactly 8 digits long.', productIdEl);
+          errors = true;
+        }
+
+        /* ---- 2. Product Description ---- */
+        var descEl = document.getElementById('productDescription');
+        var desc   = descEl.value.trim();
+        if (desc === '') {
+          addError('Product Description is required.', descEl);
+          errors = true;
+        } else if (desc.length < 20) {
+          addError('Product Description must contain at least 20 characters.', descEl);
+          errors = true;
+        }
+
+        /* ---- 3. Price ---- */
+        var priceEl = document.getElementById('price');
+        var price   = priceEl.value.trim();
+        if (price === '') {
+          addError('Price is required.', priceEl);
+          errors = true;
+        } else if (!/^\d+$/.test(price)) {
+          addError('Price must contain digits only (no decimals).', priceEl);
+          errors = true;
+        } else {
+          var priceNum = parseInt(price, 10);
+          if (priceNum < 1 || priceNum > 999) {
+            addError('Price must be between 1 and 999.', priceEl);
+            errors = true;
+          }
+        }
+
+        /* ---- 4. Supplier Username ---- */
+        var usernameEl = document.getElementById('supplierUsername');
+        var username   = usernameEl.value.trim();
+        if (username === '') {
+          addError('Supplier Username is required.', usernameEl);
+          errors = true;
+        } else if (username.length < 4) {
+          addError('Supplier Username must contain at least 4 characters.', usernameEl);
+          errors = true;
+        } else if (!/^[a-zA-Z]/.test(username)) {
+          addError('Supplier Username must start with a letter.', usernameEl);
+          errors = true;
+        }
+
+        /* ---- 5. Supplier Status (checkboxes) ---- */
+        var checkboxes = form.querySelectorAll('input[name="supplierStatus"]');
+        var atLeastOneChecked = false;
+        checkboxes.forEach(function (cb) {
+          if (cb.checked) { atLeastOneChecked = true; }
+        });
+        if (!atLeastOneChecked) {
+          addError('At least one Supplier Status must be selected.', null);
+          /* Highlight all checkboxes to draw attention */
+          checkboxes.forEach(function (cb) { cb.classList.add('field-error'); });
+          errors = true;
+        }
+
+        /* ---- 6. Supplier Email ---- */
+        var emailEl = document.getElementById('supplierEmail');
+        var email   = emailEl.value.trim();
+        if (email === '') {
+          addError('Supplier Email is required.', emailEl);
+          errors = true;
+        } else if (!emailEl.validity.valid) {
+          addError('Supplier Email must be a valid email address.', emailEl);
+          errors = true;
+        }
+
+        /* Show or hide the error panel */
+        if (errors) {
+          errorPanel.classList.add('visible');
+        }
+
+        return !errors;
+      }
+
+      /* ===== Form Submit Handler ===== */
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        if (validateForm()) {
+          alert('Form submitted successfully! Your product has been registered.');
+          form.submit();
+        }
+      });
+
+      /* ===== Reset Handler – clear error panel ===== */
+      document.getElementById('resetBtn').addEventListener('click', function () {
+        clearErrors();
+      });
+
+    })();
+  </script>
+
+</body>
+</html>
